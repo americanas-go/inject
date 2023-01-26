@@ -4,7 +4,7 @@
 // Build Date:
 // Built By:
 
-package main
+package inject
 
 import (
 	"errors"
@@ -12,55 +12,59 @@ import (
 )
 
 const (
-	// AppTypeHTTP is a AppType of type HTTP.
-	AppTypeHTTP AppType = iota
-	// AppTypeFUNCTION is a AppType of type FUNCTION.
-	AppTypeFUNCTION
-	// AppTypeGRPC is a AppType of type GRPC.
-	AppTypeGRPC
+	// AnnotationTypeMODULE is a AnnotationType of type MODULE.
+	AnnotationTypeMODULE AnnotationType = iota
+	// AnnotationTypePROVIDE is a AnnotationType of type PROVIDE.
+	AnnotationTypePROVIDE
+	// AnnotationTypeINJECT is a AnnotationType of type INJECT.
+	AnnotationTypeINJECT
+	// AnnotationTypeINVOKE is a AnnotationType of type INVOKE.
+	AnnotationTypeINVOKE
 )
 
-var ErrInvalidAppType = errors.New("not a valid AppType")
+var ErrInvalidAnnotationType = errors.New("not a valid AnnotationType")
 
-const _AppTypeName = "HTTPFUNCTIONGRPC"
+const _AnnotationTypeName = "MODULEPROVIDEINJECTINVOKE"
 
-var _AppTypeMap = map[AppType]string{
-	AppTypeHTTP:     _AppTypeName[0:4],
-	AppTypeFUNCTION: _AppTypeName[4:12],
-	AppTypeGRPC:     _AppTypeName[12:16],
+var _AnnotationTypeMap = map[AnnotationType]string{
+	AnnotationTypeMODULE:  _AnnotationTypeName[0:6],
+	AnnotationTypePROVIDE: _AnnotationTypeName[6:13],
+	AnnotationTypeINJECT:  _AnnotationTypeName[13:19],
+	AnnotationTypeINVOKE:  _AnnotationTypeName[19:25],
 }
 
 // String implements the Stringer interface.
-func (x AppType) String() string {
-	if str, ok := _AppTypeMap[x]; ok {
+func (x AnnotationType) String() string {
+	if str, ok := _AnnotationTypeMap[x]; ok {
 		return str
 	}
-	return fmt.Sprintf("AppType(%d)", x)
+	return fmt.Sprintf("AnnotationType(%d)", x)
 }
 
-var _AppTypeValue = map[string]AppType{
-	_AppTypeName[0:4]:   AppTypeHTTP,
-	_AppTypeName[4:12]:  AppTypeFUNCTION,
-	_AppTypeName[12:16]: AppTypeGRPC,
+var _AnnotationTypeValue = map[string]AnnotationType{
+	_AnnotationTypeName[0:6]:   AnnotationTypeMODULE,
+	_AnnotationTypeName[6:13]:  AnnotationTypePROVIDE,
+	_AnnotationTypeName[13:19]: AnnotationTypeINJECT,
+	_AnnotationTypeName[19:25]: AnnotationTypeINVOKE,
 }
 
-// ParseAppType attempts to convert a string to a AppType.
-func ParseAppType(name string) (AppType, error) {
-	if x, ok := _AppTypeValue[name]; ok {
+// ParseAnnotationType attempts to convert a string to a AnnotationType.
+func ParseAnnotationType(name string) (AnnotationType, error) {
+	if x, ok := _AnnotationTypeValue[name]; ok {
 		return x, nil
 	}
-	return AppType(0), fmt.Errorf("%s is %w", name, ErrInvalidAppType)
+	return AnnotationType(0), fmt.Errorf("%s is %w", name, ErrInvalidAnnotationType)
 }
 
 // MarshalText implements the text marshaller method.
-func (x AppType) MarshalText() ([]byte, error) {
+func (x AnnotationType) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
 // UnmarshalText implements the text unmarshaller method.
-func (x *AppType) UnmarshalText(text []byte) error {
+func (x *AnnotationType) UnmarshalText(text []byte) error {
 	name := string(text)
-	tmp, err := ParseAppType(name)
+	tmp, err := ParseAnnotationType(name)
 	if err != nil {
 		return err
 	}
@@ -69,51 +73,59 @@ func (x *AppType) UnmarshalText(text []byte) error {
 }
 
 const (
-	// TypeINTERFACE is a Type of type INTERFACE.
-	TypeINTERFACE Type = iota
-	// TypeFUNCTION is a Type of type FUNCTION.
-	TypeFUNCTION
+	// ModuleAttrMODULE is a ModuleAttr of type MODULE.
+	ModuleAttrMODULE ModuleAttr = iota
+	// ModuleAttrPATH is a ModuleAttr of type PATH.
+	ModuleAttrPATH
+	// ModuleAttrPACKAGE is a ModuleAttr of type PACKAGE.
+	ModuleAttrPACKAGE
+	// ModuleAttrFUNC is a ModuleAttr of type FUNC.
+	ModuleAttrFUNC
 )
 
-var ErrInvalidType = errors.New("not a valid Type")
+var ErrInvalidModuleAttr = errors.New("not a valid ModuleAttr")
 
-const _TypeName = "INTERFACEFUNCTION"
+const _ModuleAttrName = "MODULEPATHPACKAGEFUNC"
 
-var _TypeMap = map[Type]string{
-	TypeINTERFACE: _TypeName[0:9],
-	TypeFUNCTION:  _TypeName[9:17],
+var _ModuleAttrMap = map[ModuleAttr]string{
+	ModuleAttrMODULE:  _ModuleAttrName[0:6],
+	ModuleAttrPATH:    _ModuleAttrName[6:10],
+	ModuleAttrPACKAGE: _ModuleAttrName[10:17],
+	ModuleAttrFUNC:    _ModuleAttrName[17:21],
 }
 
 // String implements the Stringer interface.
-func (x Type) String() string {
-	if str, ok := _TypeMap[x]; ok {
+func (x ModuleAttr) String() string {
+	if str, ok := _ModuleAttrMap[x]; ok {
 		return str
 	}
-	return fmt.Sprintf("Type(%d)", x)
+	return fmt.Sprintf("ModuleAttr(%d)", x)
 }
 
-var _TypeValue = map[string]Type{
-	_TypeName[0:9]:  TypeINTERFACE,
-	_TypeName[9:17]: TypeFUNCTION,
+var _ModuleAttrValue = map[string]ModuleAttr{
+	_ModuleAttrName[0:6]:   ModuleAttrMODULE,
+	_ModuleAttrName[6:10]:  ModuleAttrPATH,
+	_ModuleAttrName[10:17]: ModuleAttrPACKAGE,
+	_ModuleAttrName[17:21]: ModuleAttrFUNC,
 }
 
-// ParseType attempts to convert a string to a Type.
-func ParseType(name string) (Type, error) {
-	if x, ok := _TypeValue[name]; ok {
+// ParseModuleAttr attempts to convert a string to a ModuleAttr.
+func ParseModuleAttr(name string) (ModuleAttr, error) {
+	if x, ok := _ModuleAttrValue[name]; ok {
 		return x, nil
 	}
-	return Type(0), fmt.Errorf("%s is %w", name, ErrInvalidType)
+	return ModuleAttr(0), fmt.Errorf("%s is %w", name, ErrInvalidModuleAttr)
 }
 
 // MarshalText implements the text marshaller method.
-func (x Type) MarshalText() ([]byte, error) {
+func (x ModuleAttr) MarshalText() ([]byte, error) {
 	return []byte(x.String()), nil
 }
 
 // UnmarshalText implements the text unmarshaller method.
-func (x *Type) UnmarshalText(text []byte) error {
+func (x *ModuleAttr) UnmarshalText(text []byte) error {
 	name := string(text)
-	tmp, err := ParseType(name)
+	tmp, err := ParseModuleAttr(name)
 	if err != nil {
 		return err
 	}
