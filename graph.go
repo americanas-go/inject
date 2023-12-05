@@ -128,10 +128,15 @@ func (g *Graph[T]) ExportToGraphviz(filename string) error {
 	return nil
 }
 
-func NewGraphFromEntries(ctx context.Context, entries []annotation.Entry) (*Graph[annotation.Entry], error) {
+type AnnoEntry struct {
+	Entry annotation.Entry
+	An    Annotation
+}
 
-	out := make(map[string]annotation.Entry)
-	in := make(map[string][]annotation.Entry)
+func NewGraphFromEntries(ctx context.Context, entries []annotation.Entry) (*Graph[AnnoEntry], error) {
+
+	out := make(map[string]AnnoEntry)
+	in := make(map[string][]AnnoEntry)
 
 	for _, entry := range entries {
 		if !entry.IsFunc() {
@@ -174,7 +179,10 @@ func NewGraphFromEntries(ctx context.Context, entries []annotation.Entry) (*Grap
 
 					id := xid(entry.Package, res.Type, a)
 					if _, ok := out[id]; !ok {
-						out[id] = entry
+						out[id] = AnnoEntry{
+							Entry: entry,
+							An:    a,
+						}
 					}
 				}
 
@@ -194,9 +202,12 @@ func NewGraphFromEntries(ctx context.Context, entries []annotation.Entry) (*Grap
 					id := xid(entry.Package, param.Type, a)
 
 					if _, ok := out[id]; !ok {
-						in[id] = make([]annotation.Entry, 0)
+						in[id] = make([]AnnoEntry, 0)
 					}
-					in[id] = append(in[id], entry)
+					in[id] = append(in[id], AnnoEntry{
+						Entry: entry,
+						An:    a,
+					})
 				}
 
 			case AnnotationTypeINVOKE:
@@ -206,18 +217,18 @@ func NewGraphFromEntries(ctx context.Context, entries []annotation.Entry) (*Grap
 
 	}
 
-	graph := NewGraph[annotation.Entry]()
-	for _, entry := range out {
-		graph.AddVertex(gid(entry), entry)
+	graph := NewGraph[AnnoEntry]()
+	for _, ae := range out {
+		graph.AddVertex(gid(ae.Entry), ae)
 	}
 
-	for id, entries := range in {
+	for id, aes := range in {
 
-		if outEntry, ok := out[id]; ok {
-			for _, inb := range entries {
+		if outAnnoEntry, ok := out[id]; ok {
+			for _, inb := range aes {
 
-				graph.AddVertex(gid(inb), inb)
-				graph.AddEdge(gid(outEntry), gid(inb))
+				graph.AddVertex(gid(inb.Entry), inb)
+				graph.AddEdge(gid(outAnnoEntry.Entry), gid(inb.Entry))
 
 			}
 		} else {
