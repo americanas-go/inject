@@ -128,15 +128,15 @@ func (g *Graph[T]) ExportToGraphviz(filename string) error {
 	return nil
 }
 
-type AnnoEntry struct {
+type Component struct {
 	Entry annotation.Entry
 	An    Annotation
 }
 
-func NewGraphFromEntries(ctx context.Context, entries []annotation.Entry) (*Graph[AnnoEntry], error) {
+func NewGraphFromEntries(ctx context.Context, entries []annotation.Entry) (*Graph[Component], error) {
 
-	out := make(map[string]AnnoEntry)
-	in := make(map[string][]AnnoEntry)
+	out := make(map[string]Component)
+	in := make(map[string][]Component)
 
 	for _, entry := range entries {
 		if !entry.IsFunc() {
@@ -179,7 +179,7 @@ func NewGraphFromEntries(ctx context.Context, entries []annotation.Entry) (*Grap
 
 					id := xid(entry.Package, res.Type, a)
 					if _, ok := out[id]; !ok {
-						out[id] = AnnoEntry{
+						out[id] = Component{
 							Entry: entry,
 							An:    a,
 						}
@@ -202,9 +202,9 @@ func NewGraphFromEntries(ctx context.Context, entries []annotation.Entry) (*Grap
 					id := xid(entry.Package, param.Type, a)
 
 					if _, ok := out[id]; !ok {
-						in[id] = make([]AnnoEntry, 0)
+						in[id] = make([]Component, 0)
 					}
-					in[id] = append(in[id], AnnoEntry{
+					in[id] = append(in[id], Component{
 						Entry: entry,
 						An:    a,
 					})
@@ -217,9 +217,9 @@ func NewGraphFromEntries(ctx context.Context, entries []annotation.Entry) (*Grap
 
 	}
 
-	graph := NewGraph[AnnoEntry]()
-	for _, ae := range out {
-		graph.AddVertex(gid(ae.Entry), ae)
+	graph := NewGraph[Component]()
+	for id, ae := range out {
+		graph.AddVertex(id, ae)
 	}
 
 	for id, aes := range in {

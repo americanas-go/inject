@@ -15,10 +15,10 @@ import (
 
 type Generator struct {
 	moduleName string
-	graph      *Graph[AnnoEntry]
+	graph      *Graph[Component]
 }
 
-func NewGenerator(moduleName string, graph *Graph[AnnoEntry]) *Generator {
+func NewGenerator(moduleName string, graph *Graph[Component]) *Generator {
 	return &Generator{
 		moduleName: moduleName,
 		graph:      graph,
@@ -38,7 +38,7 @@ func (p *Generator) Generate(ctx context.Context) error {
 	return nil
 }
 
-func (p *Generator) generateModuleFile(ctx context.Context, vertex *Vertex[AnnoEntry]) error {
+func (p *Generator) generateModuleFile(ctx context.Context, vertex *Vertex[Component]) error {
 	annoEntry := vertex.Value
 	entry := annoEntry.Entry
 
